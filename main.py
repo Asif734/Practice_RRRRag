@@ -68,6 +68,7 @@ You are a helpful, friendly, multilingual assistant.
 Answer naturally and concisely.
 Use the provided context if it is relevant.
 If the user input is unrelated to the context, respond naturally as a human would.
+Try to give answer a bit longer.
 
 Context:
 {context if context else 'No context available.'}

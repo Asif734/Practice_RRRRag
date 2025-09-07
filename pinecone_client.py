@@ -1,11 +1,14 @@
 from pinecone import Pinecone, ServerlessSpec
 from config import PINECONE_API_KEY, INDEX_NAME
 
-# Create client
+# Create Pinecone client
 pc = Pinecone(api_key=PINECONE_API_KEY)
 
-# Create index if not exists
-if INDEX_NAME not in pc.list_indexes().names():
+# List existing indexes
+existing_indexes = pc.list_indexes().names()
+# Create index if it doesn't exist
+if INDEX_NAME not in existing_indexes:
+    print(f"Creating index '{INDEX_NAME}'...")
     pc.create_index(
         name=INDEX_NAME,
         dimension=768,
@@ -15,15 +18,16 @@ if INDEX_NAME not in pc.list_indexes().names():
             region="us-east-1"
         )
     )
+    print(f"Index '{INDEX_NAME}' created.")
 
-# Connect to index
-index = pc.Index(INDEX_NAME)
+# Connect to the index
+index = pc.Index(name=INDEX_NAME)
 
-# Upsert helper
+# Helper: Upsert vectors
 def upsert_vectors(ids, vectors, metadata):
     items = [{"id": i, "values": v, "metadata": m} for i, v, m in zip(ids, vectors, metadata)]
     index.upsert(vectors=items)
 
-# Query helper
-def query_index(vector, top_k=5,include_metadata=True):
+# Helper: Query index
+def query_index(vector, top_k=5, include_metadata=True):
     return index.query(vector=vector, top_k=top_k, include_metadata=include_metadata)
